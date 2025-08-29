@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Suggestion Box</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            background: #fafbfc;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .privacy-note {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">💡</div>
+        <h1>Anonymous Suggestion Box</h1>
+        <p class="subtitle">Your feedback helps me grow! Share thoughts, ideas, suggestions, or even complaints - everything helps me improve. This is your safe space to be completely honest.</p>
+        
+        <div class="success-message" id="successMessage">
+            ✅ Thank you for your suggestion! Your feedback has been recorded.
+        </div>
+        
+        <form id="suggestionForm">
+            <div class="form-group">
+                <label for="suggestion">Your Suggestion:</label>
+                <textarea 
+                    id="suggestion" 
+                    name="suggestion" 
+                    placeholder="Feel free to share anything - positive feedback, areas for improvement, complaints, ideas, or suggestions. Your honest input helps me become better. No judgment, just genuine appreciation for your time and thoughts!"
+                    required
+                ></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">
+                Submit Anonymously
+            </button>
+        </form>
+        
+        <div class="privacy-note">
+            🔒 <strong>100% Anonymous & Safe:</strong> Zero tracking, no IP logging, no personal data collected. I genuinely want your honest feedback - complaints included! Your candid input helps me grow and improve. Share whatever's on your mind.
+        </div>
+    </div>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <script>
+        // Initialize EmailJS with your public key
+        // You'll need to replace 'YOUR_PUBLIC_KEY' with your actual EmailJS public key
+        emailjs.init('GTO3npNXt6ST2N4ra');
+
+        document.getElementById('suggestionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const suggestion = document.getElementById('suggestion').value.trim();
+            const submitBtn = document.querySelector('.submit-btn');
+            
+            if (!suggestion) {
+                alert('Please enter your suggestion before submitting.');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.innerHTML = 'Sending...';
+            submitBtn.disabled = true;
+            
+            // Prepare email data
+            const templateParams = {
+                suggestion: suggestion,
+                timestamp: new Date().toLocaleString(),
+                // Generate a random session ID for tracking (not linked to user)
+                session_id: 'ANON_' + Math.random().toString(36).substr(2, 9)
+            };
+            
+            // Send email using EmailJS
+            emailjs.send("service_at2zkjj","template_80tixwd", templateParams)
+                .then(function(response) {
+                    console.log('Email sent successfully:', response.status, response.text);
+                    
+                    // Show success message
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Clear the form
+                    document.getElementById('suggestion').value = '';
+                    
+                    // Reset button
+                    submitBtn.innerHTML = 'Submit Anonymously';
+                    submitBtn.disabled = false;
+                    
+                    // Hide success message after 5 seconds
+                    setTimeout(() => {
+                        document.getElementById('successMessage').style.display = 'none';
+                    }, 5000);
+                }, function(error) {
+                    console.error('Failed to send email:', error);
+                    alert('Sorry, there was an error sending your suggestion. Please try again later.');
+                    
+                    // Reset button
+                    submitBtn.innerHTML = 'Submit Anonymously';
+                    submitBtn.disabled = false;
+                });
+        });
+    </script>
+</body>
+</html>
